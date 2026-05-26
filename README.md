@@ -1,84 +1,138 @@
-# 🚀 LangGraph Stateful AI Agent with Groq & LangSmith
+# ResuMind AI: Full-Stack AI Resume & ATS Analyzer
 
-A blazingly fast, stateful, cyclic AI agent built with **LangGraph**, **Node.js (ESM)**, and **Groq (`llama-3.3-70b-versatile`)**. The agent is equipped with dynamic mathematical tools and fully optimized for lightweight prompt token consumption and real-time execution tracing with **LangSmith**.
-
----
-
-## 🗺️ Agent Architecture
-
-This agent uses a **StateGraph** with conditional routing to dynamically determine whether to invoke computational tools or formulate a direct answer.
-
-```mermaid
-graph TD
-    __start__[START] --> llmCall[llmCall Node]
-    llmCall --> shouldContinue{shouldContinue?}
-    shouldContinue -- "tool_calls exists" --> tools[tools Node]
-    tools --> llmCall
-    shouldContinue -- "no tool_calls" --> __end__[END]
-
-    style __start__ fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
-    style __end__ fill:#F44336,stroke:#D32F2F,stroke-width:2px,color:#fff
-    style llmCall fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff
-    style tools fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff
-    style shouldContinue fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff
-```
+ResuMind AI is a state-of-the-art, MERN-stack web application designed to parse, analyze, and optimize resumes against Applicant Tracking Systems (ATS) and target Job Descriptions. Leveraging **LangChain JS**, **Qdrant Vector Database**, and **Local Ollama Large Language Models**, it delivers semantic matching and detailed optimization feedback with complete data privacy.
 
 ---
 
-## ✨ Features
+## 🚀 Key Features
 
-* **Stateful Cyclic Workflow**: Built using LangGraph's `StateGraph` and `MessagesAnnotation` to preserve clean context across recursive executions.
-* **Lightning-Fast Inference**: Uses the high-performance Groq LLaMA 3.3 70B model for near-instant decisions.
-* **Token-Optimized Schema**: Zod tool schemas and system prompts are streamlined to minimize prompt token footprint (saving **~8%** on token overhead).
-* **LangSmith Tracing**: Zero-config visual execution debugging just by adding your LangSmith API keys to the environment.
-* **Node.js ESM Compatibility**: Fully configured for ES Modules and polyfilled for Web Crypto API compatibility in Node v18+.
-
----
-
-## 🛠️ Tech Stack
-
-* **Orchestration**: `@langchain/langgraph`
-* **Agent Core & Message Schema**: `@langchain/core`
-* **Inference**: `@langchain/groq` (Groq SDK)
-* **Schema Validation**: `zod`
-* **Environment Configuration**: `dotenv`
+1. **JWT Authentication:** Secure user registrations, login sessions, and private route dashboards.
+2. **Semantic Resume Uploads:** Multi-resume management featuring automated `.pdf`, `.txt`, and `.md` parsing.
+3. **RAG (Retrieval-Augmented Generation):** Custom text splitter, semantic chunk vector indexing, and context-aware grading prompts.
+4. **Job Description Screening:** Direct job-to-resume grading, semantic similarity matching, and gap analytics.
+5. **Interactive Charts:** Recharts bar and circular gauges illustrating ATS scores, skills gaps, and category strength scores.
+6. **Side-by-Side Version Diffing:** Retain historical file versions and compare revisions side-by-side to track score deltas.
+7. **AI Cover Letter Wizard:** Draft fully customized applications based on resume profiles and targeted job descriptions.
+8. **Admin Panel:** Aggregate metrics tracking active users, total resume uploads, and aggregated AI execution histories.
+9. **DevOps Integration:** Complete container orchestration via Docker Compose.
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Technology Stack
 
-### 1. Prerequisites
-* **Node.js** v18.19.1 or higher installed on your system.
+- **Frontend:** React, Vite, Tailwind CSS, Framer Motion, Zustand, Recharts, Lucide Icons
+- **Backend:** Node.js, Express, Multer, PDF-Parse
+- **Database:** MongoDB (Structured storage)
+- **Vector DB:** Qdrant Vector Database (Cosine similarity matching)
+- **AI RAG Pipeline:** LangChain JS with Ollama
+- **Local LLMs:** 
+  - `nomic-embed-text` (768-dimension dense vector embeddings)
+  - `llama3` (Structured prompt generation)
 
-### 2. Installation
-Clone this repository and install the dependencies:
+---
+
+## ⚙️ Installation & Local Setup
+
+To run the application locally without Docker, follow these steps:
+
+### Prerequisites
+- [Node.js v18+](https://nodejs.org) installed.
+- [MongoDB Community Server](https://www.mongodb.com/try/download/community) running locally on port `27017`.
+- [Qdrant](https://qdrant.tech/documentation/quick-start/) running locally on port `6333`.
+- [Ollama](https://ollama.com) installed and running locally on port `11434`.
+
+### Step 1: Install Ollama Models
+Ensure Ollama is running and download the embedding and language models in your terminal:
 ```bash
-npm install
+ollama pull nomic-embed-text
+ollama pull llama3
 ```
 
-### 3. Setup Environment Variables
-Create a `.env` file in the root directory (or update your existing one) and populate it with your credentials:
+### Step 2: Configure & Launch Backend
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Boot the API development server:
+   ```bash
+   npm run dev
+   ```
+*The backend API will run on `http://localhost:5000`.*
 
-```env
-# Groq LLM Key
-GROQ_API_KEY=your_groq_api_key_here
+### Step 3: Configure & Launch Frontend
+1. Navigate to the frontend directory:
+   ```bash
+   cd ../frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Boot the client application:
+   ```bash
+   npm run dev
+   ```
+*The frontend client will run on `http://localhost:5173`.*
 
-# LangSmith Tracing Configuration
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_API_KEY=your_langsmith_api_key_here
-LANGCHAIN_PROJECT="lang-graph-demo"
+---
+
+## 🐳 Containerized Setup via Docker Compose
+
+Run the entire application, including databases and local AI services, using Docker:
+
+1. Clone or navigate to the project root directory:
+   ```bash
+   cd lang-graph
+   ```
+
+2. Boot all services via Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Verify the Ollama Models Inside the Container:**
+   If running Ollama in docker, log into the container and pull the models:
+   ```bash
+   docker exec -it mern_ollama ollama pull nomic-embed-text
+   docker exec -it mern_ollama ollama pull llama3
+   ```
+
+Once fully booted, access the client interface at `http://localhost:5173`.
+
+---
+
+## 📂 Project Architecture
+
 ```
-
-### 4. Run the Agent
-Run the main script to initiate the agent and watch it call the tools:
-```bash
-node index.js
+lang-graph/
+├── backend/
+│   ├── src/
+│   │   ├── config/          # MongoDB & Qdrant database clients
+│   │   ├── models/          # User, Resume, Analysis, Cover Letter Schemas
+│   │   ├── controllers/     # Controller layers for APIs
+│   │   ├── middleware/      # Error, Logger, JWT auth middlewares
+│   │   ├── routes/          # Express route structures
+│   │   └── services/        # PDF extraction, LLM AI, & Qdrant RAG pipeline
+│   ├── Dockerfile
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/      # UI Shell layouts, sidebars, uploads, chart visuals
+│   │   ├── context/         # Light/Dark Theme controllers
+│   │   ├── store/           # Zustand global state (Auth & Resume stores)
+│   │   ├── pages/           # Landing, Dashboard, Matching, Admin screens
+│   │   └── index.css        # Tailwind directives and glassmorphic designs
+│   ├── Dockerfile
+│   └── package.json
+└── docker-compose.yml       # Application container orchestration
 ```
 
 ---
 
-## ⚡ Performance Optimization details
+## 🔒 Security & Data Privacy
 
-To keep execution costs minimal, the prompt structure has been heavily optimized:
-1. **Simplified Parameters**: Removed `.describe(...)` wrappers from mathematical parameters where semantic intent was already obvious, shrinking the injected JSON schemas.
-2. **Minimalist System Prompt**: Condensed the system instructions to `"Concise math helper."`, saving crucial prompt tokens on every loop turn.
+ResuMind AI is engineered to prioritize data privacy. All parsing and AI operations are processed on your local machine using Qdrant and Ollama. Resumes, credentials, and analysis metrics are completely secure and are never dispatched to public cloud instances.
